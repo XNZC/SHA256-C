@@ -15,8 +15,7 @@
         <Button Content="File" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="30" Margin="1,1,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
         <Button Content="Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60" Height="30" Margin="61,1,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
         <Button Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Height="30" Margin="131,1,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
-        <Rectangle HorizontalAlignment="Center" Height="55" Stroke="#FF871C3E" VerticalAlignment="Top" Width="800" Margin="0,-22,0,0"/>
-        <StackPanel Margin="1,33,0,30">
+        <StackPanel Margin="1,31,0,30">
             <Label Content="AA" Foreground="White" FontFamily="Bahnschrift Light" FontSize="15"></Label>
         </StackPanel>
     </Grid>
