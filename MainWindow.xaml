@@ -11,14 +11,24 @@
         <Button Content="—" HorizontalAlignment="Left" VerticalAlignment="Top" Width="30" Height="30" Margin="740,0,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Bahnschrift SemiBold" FontSize="18" Click="Minimize_Click"/>
         <ProgressBar Maximum="100" Minimum="0" Name="ProgressBar" HorizontalAlignment="Left" Height="10" Margin="10,380,0,0" VerticalAlignment="Top" Width="780" Background="#FF0A202F" Foreground="#FF871C3E" BorderBrush="#FF871C3E"/>
         <Rectangle HorizontalAlignment="Left" Height="400" Stroke="#FF871C3E" VerticalAlignment="Top" Width="800"/>
-        <Image HorizontalAlignment="Left" Height="60" VerticalAlignment="Top" Width="60" Source="/61b404c5f6e14.png" Margin="-23,340,0,0"/>
-        <Button Content="File" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="30" Margin="1,1,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
-        <Button Content="Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60" Height="30" Margin="61,1,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
-        <Button Content="Generate" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Height="30" Margin="131,1,0,0" Background="#FF0A202F" BorderBrush="#FF0A202F" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
-        <StackPanel Margin="1,31,0,30">
-            <Label Name="Label00" Content="AA" Foreground="White" FontFamily="Bahnschrift Light" FontSize="15"></Label>
-            <Label Name="Label01" Content="AA" Foreground="White" FontFamily="Bahnschrift Light" FontSize="15"></Label>
-        </StackPanel>
+        <TreeView Name="treevieww" Margin="2,41,10,44" Background="#FF0A202F" BorderBrush="#FF0A202F">
+
+        </TreeView>
+        <Button Click="File_Click" Content="File" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="30" Margin="10,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15" RenderTransformOrigin="0.587,0.943"/>
+        <Button Click="Folder_Click" Content="Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60" Height="30" Margin="65,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
+        <Button Click="Generate_Click" Content="Generate Hashes" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Height="30" Margin="276,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
+        <Image HorizontalAlignment="Left" Width="107" Source="/Matsumoto_Hoji_1785.png" Margin="729,335,0,-16" RenderTransformOrigin="0.5,0.5">
+            <Image.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleX="-1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Image.RenderTransform>
+        </Image>
+        <Button Click="Compare_Click" Content="Compare Hashes" HorizontalAlignment="Left" VerticalAlignment="Top" Width="141" Height="30" Margin="130,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
+        <Label Name="InfoLabel" Content="" HorizontalAlignment="Center" Margin="0,356,0,0" VerticalAlignment="Top" Height="29" Width="780" Foreground="#FFD24C4C" FontFamily="Cascadia Mono" FontSize="16" HorizontalContentAlignment="Center"/>
     </Grid>
 
 </Window>

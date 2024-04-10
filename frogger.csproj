@@ -6,19 +6,17 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>61b404c5f6e14.ico</ApplicationIcon>
+    <ApplicationIcon>Matsumoto_Hoji_1785.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="61b404c5f6e14.png" />
+    <None Remove="Matsumoto_Hoji_1785.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="61b404c5f6e14.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="61b404c5f6e14.png" />
+    <Content Include="Matsumoto_Hoji_1785.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
