@@ -1,1 +1,2 @@
-Failu integralumo tikrinimo programa
+Failų integralumo tikrinimo programa
+==================================================
