@@ -10,11 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Matsumoto_Hoji_1785.png" />
+    <None Remove="Matsumoto_Hoji_1785_Frog.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Matsumoto_Hoji_1785.png">
+    <Content Include="Matsumoto_Hoji_1785_Frog.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
