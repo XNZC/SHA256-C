@@ -17,7 +17,7 @@
         <Button Click="File_Click" Content="File" HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Height="30" Margin="10,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15" RenderTransformOrigin="0.587,0.943"/>
         <Button Click="Folder_Click" Content="Folder" HorizontalAlignment="Left" VerticalAlignment="Top" Width="60" Height="30" Margin="65,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
         <Button Click="Generate_Click" Content="Generate Hashes" HorizontalAlignment="Left" VerticalAlignment="Top" Width="147" Height="30" Margin="276,6,0,0" Background="#FF0A202F" BorderBrush="#FF871C3E" Foreground="White" FontFamily="Cascadia Mono" FontSize="15"/>
-        <Image HorizontalAlignment="Left" Width="107" Source="/Matsumoto_Hoji_1785.png" Margin="729,335,0,-16" RenderTransformOrigin="0.5,0.5">
+        <Image HorizontalAlignment="Left" Width="107" Source="/Matsumoto_Hoji_1785_Frog.png" Margin="729,335,0,-16" RenderTransformOrigin="0.5,0.5">
             <Image.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform ScaleX="-1"/>

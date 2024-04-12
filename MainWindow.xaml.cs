@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -110,40 +111,66 @@ namespace frogger
             treeViewItem.Items.Add(textBox1);
         }
 
+        private void ChangeProgress(float val)
+        {
+            ProgressBar.Value = val;
+        }
+
+        private async void GenerateSHA256Hashes(List<string> files)
+        {
+            StreamWriter outputfile = new StreamWriter(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt"));
+            
+            float totalFiles = files.Count;
+            float currentFile = 0;
+
+            foreach (var file in files)
+            {
+                StringBuilder sb = new StringBuilder(64);
+
+                DateTime start = DateTime.Now;
+
+                await Task.Run(() => ToSHA256(file, sb));
+
+                DateTime end = DateTime.Now;
+                Debug.WriteLine(end - start);
+
+                GenerateTreeViewItem(file, sb.ToString(), "GENERATED");
+                outputfile.WriteLine(file + ":" + sb.ToString());
+
+                currentFile++;
+                this.InfoLabel.Content = "Running! " + "(" + currentFile + "/" + totalFiles + ")" ;
+
+                ChangeProgress((currentFile / totalFiles) * 100);
+            }
+
+            this.InfoLabel.Content = "Saved to: '" + System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt") + "'";
+        }
+
         private void Generate_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedDirectory != "")
+            if (SelectedDirectory != "" && running == false)
             {
+                running = true;
+                this.InfoLabel.Content = "Running!";
                 treevieww.Items.Clear();
 
-                List<string> stringList = new List<string>();
-                
                 DirectoryInfo Directory = new DirectoryInfo(SelectedDirectory);
+                List<string> files = new List<string>();
 
                 foreach(var file in Directory.GetFiles())
                 {
                     string fileName = file.Name;
-                    StringBuilder sb = new StringBuilder(64);
-                    ToSHA256(SelectedDirectory + @"\" + fileName, sb);
-
-                    stringList.Add(fileName + ":" + sb.ToString());
-                    GenerateTreeViewItem(SelectedDirectory + @"\" + fileName, sb.ToString(), "GENERATED");
+                    string fileLocation = (SelectedDirectory + @"\" + fileName);
+                    files.Add(fileLocation);
                 }
 
-                string[] strings = stringList.ToArray();
-
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "txt files (*.txt)|*.txt";
-                saveFileDialog.Title = "Save Hash Values";
-                saveFileDialog.ShowDialog();
-
-                if(saveFileDialog.FileName != "")
-                {
-                    File.WriteAllLines(saveFileDialog.FileName, strings);
-                }
+                GenerateSHA256Hashes(files);
 
                 SelectedDirectory = "";
-                SelectedFile = saveFileDialog.FileName;
+            }
+            else if (running == true)
+            {
+                this.InfoLabel.Content = "Process Is Currently Running!";
             }
             else
             {
@@ -153,8 +180,10 @@ namespace frogger
 
         private void Compare_Click(object sender, RoutedEventArgs e)
         {
-            if (SelectedDirectory != "" && SelectedFile != "")
+            if (SelectedDirectory != "" && SelectedFile != "" && running == false)
             {
+                /*
+
                 treevieww.Items.Clear();
 
                 DirectoryInfo Directory = new DirectoryInfo(SelectedDirectory);
@@ -211,6 +240,10 @@ namespace frogger
 
                 SelectedDirectory = "";
                 SelectedFile = "";
+                */
+            }else if (running == true)
+            {
+                this.InfoLabel.Content = "Process Is Currently Running!";
             }
             else if (SelectedDirectory == "" && SelectedFile == "")
             {

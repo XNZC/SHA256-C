@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <ApplicationIcon>Matsumoto_Hoji_1785.ico</ApplicationIcon>
+    <ApplicationIcon>Matsumoto_Hoji_1785_Frog.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
