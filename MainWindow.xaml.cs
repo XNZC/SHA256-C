@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml.Linq;
 using Microsoft.Win32;
+using static System.Net.WebRequestMethods;
 
 namespace frogger
 {
@@ -116,34 +117,36 @@ namespace frogger
             ProgressBar.Value = val;
         }
 
-        private async void GenerateSHA256Hashes(List<string> files)
+        private async void GenerateSHA256Hashes(List<string> files, List<string> fileNames)
         {
             StreamWriter outputfile = new StreamWriter(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt"));
             
             float totalFiles = files.Count;
             float currentFile = 0;
 
-            foreach (var file in files)
+            for (int i = 0; i < files.Count; i++)
             {
                 StringBuilder sb = new StringBuilder(64);
 
                 DateTime start = DateTime.Now;
 
-                await Task.Run(() => ToSHA256(file, sb));
+                await Task.Run(() => ToSHA256(files[i], sb));
 
                 DateTime end = DateTime.Now;
                 Debug.WriteLine(end - start);
 
-                GenerateTreeViewItem(file, sb.ToString(), "GENERATED");
-                outputfile.WriteLine(file + ":" + sb.ToString());
+                GenerateTreeViewItem(files[i], sb.ToString(), "GENERATED");
+                outputfile.WriteLine(fileNames[i] + ":" + sb.ToString());
 
                 currentFile++;
-                this.InfoLabel.Content = "Running! " + "(" + currentFile + "/" + totalFiles + ")" ;
+                this.InfoLabel.Content = "Running! " + "(" + currentFile + "/" + totalFiles + ")";
 
                 ChangeProgress((currentFile / totalFiles) * 100);
             }
 
+            outputfile.Close();
             this.InfoLabel.Content = "Saved to: '" + System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt") + "'";
+            ChangeProgress(0);
         }
 
         private void Generate_Click(object sender, RoutedEventArgs e)
@@ -156,17 +159,21 @@ namespace frogger
 
                 DirectoryInfo Directory = new DirectoryInfo(SelectedDirectory);
                 List<string> files = new List<string>();
+                List<string> fileNames = new List<string>();
 
                 foreach(var file in Directory.GetFiles())
                 {
                     string fileName = file.Name;
                     string fileLocation = (SelectedDirectory + @"\" + fileName);
+
                     files.Add(fileLocation);
+                    fileNames.Add(fileName);
                 }
 
-                GenerateSHA256Hashes(files);
+                GenerateSHA256Hashes(files, fileNames);
 
                 SelectedDirectory = "";
+                running = false;
             }
             else if (running == true)
             {

@@ -7,6 +7,7 @@
 #include <bitset>
 #include <iomanip>
 #include <sstream>
+#include <thread>
 
 uint32_t H[8] = { 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
 const uint32_t k[64] = {
@@ -48,42 +49,41 @@ uint32_t majority(uint32_t a, uint32_t b, uint32_t c) {
     return (a & (b | c)) | (b & c);
 }
 
-void preprocessFile(std::ifstream& file, std::vector<std::bitset<8>>& bytes) {
-    char byte;
-    int bitCount = 0;
-    int totalBits = 512;
-
-    while (file.get(byte)) {
-        bytes.push_back(std::bitset<8>(byte));
-        bitCount += 8;
-
-        if ((totalBits - bitCount) < 72) {
-            totalBits += 512;
-        }
+int roundUp(const int& bytes) {
+    int remainder = (bytes + 9) % 64;
+    if (remainder == 0) {
+        return bytes + 9;
     }
 
-    int extraBits = (totalBits - bitCount) - 8;
-    bytes.push_back(std::bitset<8>("10000000"));
+    return (bytes + 9) + 64 - remainder;
+}
 
-    for (int i = extraBits; i > 64; i -= 8) {
-        bytes.push_back(std::bitset<8>("00000000"));
+void preprocessFile(std::vector<unsigned char>& bytes) {
+    int byteSize = bytes.size();
+    int totalBytes = roundUp(byteSize);
+
+    bytes.push_back(10000000);
+    totalBytes -= 1;
+
+    for (int i = 0; i < (totalBytes - byteSize) - 8; i++) {
+        bytes.push_back(0x0);
     }
 
-    std::string length = std::bitset<64>(bitCount).to_string();
+    std::string length = std::bitset<64>(byteSize * 8).to_string();
     for (int i = 0; i < 8; i++) {
-        bytes.push_back(std::bitset<8>(length.substr(i * 8, 8)));
+        bytes.push_back((unsigned char)std::bitset<8>(length.substr(i * 8, 8)).to_ulong());
     }
 }
 
-void scheduleWords(std::vector<std::bitset<8>>& bytes, int& block, std::vector<uint32_t>& words) {
-    std::string tempstring = "";
-    for (int i = (block * 64) - 64; i < block * 64; i++) {
-        tempstring.append(bytes.at(i).to_string());
+void scheduleWords(std::vector<unsigned char>& bytes, const int& block, std::vector<uint32_t>& words) {
 
-        if (tempstring.length() == 32) {
-            words.push_back(std::bitset<32>(tempstring).to_ulong());
-            tempstring = "";
-        }
+    for (int i = (block * 64) - 64; i < block * 64; i += 4) {
+        uint32_t word = (uint32_t)bytes.at(i + 0) << 24 |
+                        (uint32_t)bytes.at(i + 1) << 16 |
+                        (uint32_t)bytes.at(i + 2) << 8  |
+                        (uint32_t)bytes.at(i + 3);
+
+        words.push_back(word);
     }
 
     for (int i = words.size(); i < 64; i++) {
@@ -95,11 +95,10 @@ void scheduleWords(std::vector<std::bitset<8>>& bytes, int& block, std::vector<u
     }
 }
 
-void processBlocks(std::vector<std::bitset<8>>& bytes, int& block) {
+void processBlocks(std::vector<unsigned char>& bytes, const int& block) {
     std::vector<uint32_t> words;
     scheduleWords(bytes, block, words);
 
-    //                      A     B     C     D    E     F      G     H
     uint32_t compr[8] = { H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7] };
 
     for (int i = 0; i < words.size(); i++) {
@@ -129,43 +128,48 @@ std::string ToHex(uint32_t n) {
     return stream.str();
 }
 
-void convert(std::ifstream& file, std::string& hex) {
+void convert(std::basic_ifstream<unsigned char>& file, std::string& hex) {
+    std::ifstream::pos_type pos = file.tellg();
 
-    std::vector<std::bitset<8>> bytes;
-    preprocessFile(file, bytes);
+    if (pos != 0) {
+        std::vector<unsigned char> bytes(pos);
+        file.seekg(0, std::ios::beg);
+        file.read(&bytes[0], pos);
+        file.close();
 
-    for (int i = 1; i <= (bytes.size() * 8) / 512; i++) {
-        processBlocks(bytes, i);
+        preprocessFile(bytes);
+
+        for (int i = 1; i <= (bytes.size() * 8) / 512; i++) {
+            processBlocks(bytes, i);
+        }
+
+        for (int i = 0; i < 8; i++) {
+            hex.append(ToHex(H[i]));
+        }
+
+        H[0] = 0x6a09e667;
+        H[1] = 0xbb67ae85;
+        H[2] = 0x3c6ef372;
+        H[3] = 0xa54ff53a;
+        H[4] = 0x510e527f;
+        H[5] = 0x9b05688c;
+        H[6] = 0x1f83d9ab;
+        H[7] = 0x5be0cd19;
     }
-
-    for (int i = 0; i < 8; i++) {
-        hex.append(ToHex(H[i]));
-    }
-
-    H[0] = 0x6a09e667;
-    H[1] = 0xbb67ae85;
-    H[2] = 0x3c6ef372;
-    H[3] = 0xa54ff53a;
-    H[4] = 0x510e527f;
-    H[5] = 0x9b05688c;
-    H[6] = 0x1f83d9ab;
-    H[7] = 0x5be0cd19;
-
-    file.close();
 }
 
 SHA256_API void __cdecl ToSHA256(const char* filePath, char* buf)
 {
-    std::string filename(filePath);
-    std::ifstream file(filename, std::ios::binary);
+    std::basic_ifstream<unsigned char> file(filePath, std::ios::binary | std::ios::ate);
 
     if (!file.is_open()) {
-        std::cerr << "Failed to open file: " << filename << std::endl;
-        return;
+        std::cerr << "Failed to open file: " << filePath << std::endl;
     }
+    else {
+        std::string hex = "";
+        convert(file, hex);
+        std::cout << hex << '\n';
 
-    std::string hex = "";
-    convert(file, hex);
-
-    strcpy_s(buf, hex.size()+1, hex.c_str());
+        strcpy_s(buf, hex.size() + 1, hex.c_str());
+    }
 }
