@@ -117,36 +117,90 @@ namespace frogger
             ProgressBar.Value = val;
         }
 
-        private async void GenerateSHA256Hashes(List<string> files, List<string> fileNames)
+        private async void GenerateSHA256Hashes(List<string> files, List<string> fileNames, bool generate)
         {
-            StreamWriter outputfile = new StreamWriter(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt"));
-            
-            float totalFiles = files.Count;
-            float currentFile = 0;
 
-            for (int i = 0; i < files.Count; i++)
+            if (generate == true)
             {
-                StringBuilder sb = new StringBuilder(64);
+                StreamWriter outputfile = new StreamWriter(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt"));
 
-                DateTime start = DateTime.Now;
+                float totalFiles = files.Count;
+                float currentFile = 0;
 
-                await Task.Run(() => ToSHA256(files[i], sb));
+                for (int i = 0; i < files.Count; i++)
+                {
+                    StringBuilder sb = new StringBuilder(64);
 
-                DateTime end = DateTime.Now;
-                Debug.WriteLine(end - start);
+                    await Task.Run(() => ToSHA256(files[i], sb));
 
-                GenerateTreeViewItem(files[i], sb.ToString(), "GENERATED");
-                outputfile.WriteLine(fileNames[i] + ":" + sb.ToString());
+                    GenerateTreeViewItem(files[i], sb.ToString(), "GENERATED");
+                    outputfile.WriteLine(fileNames[i] + ":" + sb.ToString());
 
-                currentFile++;
-                this.InfoLabel.Content = "Running! " + "(" + currentFile + "/" + totalFiles + ")";
+                    currentFile++;
+                    this.InfoLabel.Content = "Running! " + "(" + currentFile + "/" + totalFiles + ")";
 
-                ChangeProgress((currentFile / totalFiles) * 100);
+                    ChangeProgress((currentFile / totalFiles) * 100);
+                }
+
+                outputfile.Close();
+                this.InfoLabel.Content = "Saved to: '" + System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt") + "'";
+                ChangeProgress(0);
+            }
+            else
+            {
+                DirectoryInfo Directory = new DirectoryInfo(SelectedDirectory);
+                for (int i = 0; i < files.Count; i++)
+                {
+                    bool mismatch = true;
+                    bool found = false;
+
+                    float totalFiles = files.Count;
+                    float currentFile = i+1;
+
+                    StringBuilder sb = new StringBuilder(64);
+                    foreach (var file in Directory.GetFiles())
+                    {
+
+                        if (file.Name == files[i])
+                        {
+                            found = true;
+                            await Task.Run(() => ToSHA256(SelectedDirectory + @"\" + files[i], sb));
+
+                            if (sb.ToString() == fileNames[i]) // hashes
+                            {
+                                mismatch = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (found == true)
+                    {
+                        if (mismatch == false)
+                        {
+                            GenerateTreeViewItem(SelectedDirectory + @"\" + files[i], sb.ToString(), "OK");
+                        }
+                        else
+                        {
+                            GenerateTreeViewItem(SelectedDirectory + @"\" + files[i], sb.ToString(), "MISMATCH");
+                        }
+                    }
+                    else
+                    {
+                        GenerateTreeViewItem(SelectedDirectory + @"\" + files[i], sb.ToString(), "FILE NOT FOUND");
+                    }
+
+                    this.InfoLabel.Content = "Running! " + "(" + currentFile + "/" + totalFiles + ")";
+                    ChangeProgress((currentFile / totalFiles) * 100);
+                    
+                }
+
+                this.InfoLabel.Content = "Finished";
             }
 
-            outputfile.Close();
-            this.InfoLabel.Content = "Saved to: '" + System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "SHA256_Values.txt") + "'";
-            ChangeProgress(0);
+            SelectedDirectory = "";
+            SelectedFile = "";
+            running = false;
         }
 
         private void Generate_Click(object sender, RoutedEventArgs e)
@@ -170,10 +224,7 @@ namespace frogger
                     fileNames.Add(fileName);
                 }
 
-                GenerateSHA256Hashes(files, fileNames);
-
-                SelectedDirectory = "";
-                running = false;
+                GenerateSHA256Hashes(files, fileNames, true);
             }
             else if (running == true)
             {
@@ -189,66 +240,26 @@ namespace frogger
         {
             if (SelectedDirectory != "" && SelectedFile != "" && running == false)
             {
-                /*
-
+                running = true;
                 treevieww.Items.Clear();
 
-                DirectoryInfo Directory = new DirectoryInfo(SelectedDirectory);
+                List<string> files = new List<string>();
+                List<string> hashes = new List<string>();
 
                 using (var sr = new StreamReader(SelectedFile))
                 {
-
                     string line;
-                    while((line = sr.ReadLine()) != null)
+                    while ((line = sr.ReadLine()) != null)
                     {
                         string[] strings = line.Split(':');
-
-                        bool mismatch = true;
-                        bool found = false;
-
-                        string fileName = "";
-                        StringBuilder sb = new StringBuilder(64);
-
-                        foreach (var file in Directory.GetFiles())
-                        {
-                            fileName = file.Name;
-                            if (fileName == strings[0])
-                            {
-                                found = true;
-
-                                sb = new StringBuilder(64);
-                                ToSHA256(SelectedDirectory + @"\" + fileName, sb);
-
-                                if (sb.ToString() == strings[1])
-                                {
-                                    mismatch = false;
-                                    break;
-                                }
-                            }
-                        }
-
-                        if (found)
-                        {
-                            if (mismatch == false)
-                            {
-                                GenerateTreeViewItem(SelectedDirectory + @"\" + strings[0], sb.ToString(), "OK");
-                            }
-                            else
-                            {
-                                GenerateTreeViewItem(SelectedDirectory + @"\" + strings[0], sb.ToString(), "MISMATCH");
-                            }
-                        }
-                        else
-                        {
-                            GenerateTreeViewItem(SelectedDirectory + @"\" + strings[0], sb.ToString(), "FILE NOT FOUND");
-                        }
-                    }
+                        files.Add(strings[0]);
+                        hashes.Add(strings[1]);
+                    }                    
                 }
 
-                SelectedDirectory = "";
-                SelectedFile = "";
-                */
-            }else if (running == true)
+                GenerateSHA256Hashes(files, hashes, false);
+            }
+            else if (running == true)
             {
                 this.InfoLabel.Content = "Process Is Currently Running!";
             }
