@@ -20,7 +20,7 @@ namespace frogger
 {
     public partial class MainWindow : Window
     {
-        [DllImport("C:/Users/N/source/repos/frogger/x64/Debug/SHA256.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("../../../x64/Debug/SHA256.dll", CallingConvention = CallingConvention.Cdecl)]
         static extern void ToSHA256(string FilePath, StringBuilder buffer);
 
         private string SelectedFile = "";
